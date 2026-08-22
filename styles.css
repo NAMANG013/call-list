@@ -617,3 +617,198 @@ h1 {
     transform: rotate(360deg);
   }
 }
+
+/* In-App Twilio Call Overlay Modal */
+.call-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(10, 12, 18, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 24px;
+  animation: callOverlayIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.call-overlay.hidden {
+  display: none;
+}
+
+.call-modal {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #ffffff;
+}
+
+.call-avatar-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.call-avatar {
+  position: relative;
+  z-index: 2;
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(191, 147, 105, 0.35), rgba(191, 147, 105, 0.15));
+  border: 2px solid rgba(191, 147, 105, 0.6);
+  color: var(--call);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+}
+
+.call-avatar-pulse {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(191, 147, 105, 0.25);
+  animation: callPulse 1.8s infinite ease-in-out;
+  z-index: 1;
+}
+
+.call-target-name {
+  font-size: 1.45rem;
+  font-weight: 700;
+  margin: 0 0 6px;
+  letter-spacing: 0.5px;
+  color: #ffffff;
+}
+
+.call-target-phone {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0 0 16px;
+  letter-spacing: 1px;
+}
+
+.call-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  margin-bottom: 12px;
+  background: rgba(245, 158, 11, 0.18);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  transition: all 0.2s ease;
+}
+
+.call-status-badge.connected {
+  background: rgba(34, 197, 94, 0.18);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.35);
+}
+
+.call-status-badge.ended {
+  background: rgba(239, 68, 68, 0.18);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.call-timer {
+  font-size: 1.15rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 38px;
+  letter-spacing: 1px;
+}
+
+.call-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+  width: 100%;
+}
+
+.call-control-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  justify-content: center;
+  transition: all 0.2s;
+  padding: 0;
+}
+
+.call-control-btn span {
+  display: none;
+}
+
+.call-control-btn:active {
+  transform: scale(0.94);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.call-control-btn.muted {
+  background: #ffffff;
+  color: #111827;
+}
+
+.call-control-btn.hangup-btn {
+  background: #ef4444;
+  border-color: #ef4444;
+  color: #ffffff;
+  width: 72px;
+  height: 72px;
+  box-shadow: 0 8px 24px rgba(239, 68, 68, 0.45);
+}
+
+.call-control-btn.hangup-btn:active {
+  background: #dc2626;
+  transform: scale(0.92);
+}
+
+@keyframes callPulse {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+}
+
+@keyframes callOverlayIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

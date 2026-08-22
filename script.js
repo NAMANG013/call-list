@@ -1,3 +1,5 @@
+import { Device } from '@twilio/voice-sdk';
+
 // self-contained SHA-256 implementation
 function sha256(ascii) {
   function rightRotate(value, amount) {
@@ -157,6 +159,199 @@ const emptyState = document.querySelector("#emptyState");
 const template = document.querySelector("#memberTemplate");
 const whatsappFab = document.querySelector("#whatsappFab");
 
+const callOverlay = document.querySelector("#callOverlay");
+const callTargetName = document.querySelector("#callTargetName");
+const callTargetPhone = document.querySelector("#callTargetPhone");
+const callStatusBadge = document.querySelector("#callStatusBadge");
+const callTimer = document.querySelector("#callTimer");
+const muteBtn = document.querySelector("#muteBtn");
+const muteLabel = document.querySelector("#muteLabel");
+const hangupBtn = document.querySelector("#hangupBtn");
+
+let twilioDevice = null;
+let activeCall = null;
+let callDurationSeconds = 0;
+let callTimerInterval = null;
+let isMuted = false;
+let isTwilioAvailable = null;
+
+async function getTwilioToken() {
+  try {
+    const res = await fetch('/api/token');
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data && data.token ? data : null;
+  } catch (err) {
+    console.warn("Twilio token fetch failed:", err.message);
+    return null;
+  }
+}
+
+async function initTwilioDevice() {
+  if (twilioDevice) return twilioDevice;
+
+  const data = await getTwilioToken();
+  if (!data || !data.token) {
+    isTwilioAvailable = false;
+    return null;
+  }
+
+  try {
+    twilioDevice = new Device(data.token, {
+      codecPreferences: ['opus', 'pcmu'],
+      enableRingingState: true
+    });
+
+    twilioDevice.on('registered', () => {
+      isTwilioAvailable = true;
+      console.log('Twilio Voice Client Registered');
+    });
+
+    twilioDevice.on('error', (err) => {
+      console.error('Twilio Voice Error:', err);
+    });
+
+    await twilioDevice.register();
+    isTwilioAvailable = true;
+    return twilioDevice;
+  } catch (e) {
+    console.warn('Could not register Twilio Device:', e);
+    isTwilioAvailable = false;
+    return null;
+  }
+}
+
+function formatCallTime(secs) {
+  const m = String(Math.floor(secs / 60)).padStart(2, '0');
+  const s = String(secs % 60).padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function startCallTimer() {
+  callDurationSeconds = 0;
+  callTimer.textContent = '00:00';
+  if (callTimerInterval) clearInterval(callTimerInterval);
+  callTimerInterval = setInterval(() => {
+    callDurationSeconds++;
+    callTimer.textContent = formatCallTime(callDurationSeconds);
+  }, 1000);
+}
+
+function stopCallTimer() {
+  if (callTimerInterval) {
+    clearInterval(callTimerInterval);
+    callTimerInterval = null;
+  }
+}
+
+function openCallModal(member, formattedPhone) {
+  callTargetName.textContent = member.name;
+  callTargetPhone.textContent = formattedPhone;
+  callStatusBadge.textContent = "Connecting...";
+  callStatusBadge.className = "call-status-badge";
+  callTimer.textContent = "00:00";
+  isMuted = false;
+  muteBtn.classList.remove("muted");
+  if (muteLabel) muteLabel.textContent = "Mute";
+  callOverlay.classList.remove("hidden");
+}
+
+function updateCallStatus(statusText, type = "") {
+  callStatusBadge.textContent = statusText;
+  callStatusBadge.className = `call-status-badge ${type}`;
+}
+
+function closeCallModal() {
+  stopCallTimer();
+  callOverlay.classList.add("hidden");
+  activeCall = null;
+}
+
+hangupBtn.addEventListener("click", () => {
+  if (activeCall) {
+    activeCall.disconnect();
+  }
+  closeCallModal();
+});
+
+muteBtn.addEventListener("click", () => {
+  if (activeCall) {
+    isMuted = !isMuted;
+    activeCall.mute(isMuted);
+    muteBtn.classList.toggle("muted", isMuted);
+    if (muteLabel) muteLabel.textContent = isMuted ? "Unmute" : "Mute";
+  }
+});
+
+async function startTwilioCall(member) {
+  if (!member.phone) {
+    alert("No phone number available for this member.");
+    return;
+  }
+
+  let cleanPhone = member.phone.replace(/[\s\-\(\)]/g, '');
+  if (/^[6-9]\d{9}$/.test(cleanPhone)) {
+    cleanPhone = '+91' + cleanPhone;
+  } else if (!cleanPhone.startsWith('+')) {
+    cleanPhone = '+91' + cleanPhone;
+  }
+
+  const device = await initTwilioDevice();
+  if (!device) {
+    const useNative = confirm(
+      `Twilio Voice backend credentials are not configured in Vercel yet.\n\nWould you like to dial ${member.name} (${member.phone}) using your phone app?`
+    );
+    if (useNative) {
+      window.location.href = `tel:${member.phone}`;
+    }
+    return;
+  }
+
+  openCallModal(member, cleanPhone);
+
+  try {
+    const call = await device.connect({
+      params: {
+        To: cleanPhone
+      }
+    });
+
+    activeCall = call;
+
+    call.on('ringing', () => {
+      updateCallStatus('Ringing...');
+    });
+
+    call.on('accept', () => {
+      updateCallStatus('In Call', 'connected');
+      startCallTimer();
+    });
+
+    call.on('disconnect', () => {
+      updateCallStatus('Call Ended', 'ended');
+      stopCallTimer();
+      setTimeout(closeCallModal, 1500);
+    });
+
+    call.on('cancel', () => {
+      updateCallStatus('Canceled', 'ended');
+      stopCallTimer();
+      setTimeout(closeCallModal, 1500);
+    });
+
+    call.on('error', (err) => {
+      console.error('Twilio Call Error:', err);
+      updateCallStatus('Call Error: ' + (err.message || 'Failed'), 'ended');
+      stopCallTimer();
+      setTimeout(closeCallModal, 2500);
+    });
+  } catch (err) {
+    console.error('Call initiation error:', err);
+    updateCallStatus('Failed to start call', 'ended');
+    setTimeout(closeCallModal, 2500);
+  }
+}
+
 function renderAdminFilter() {
   const regularUsers = users.filter((user) => user.role !== "admin");
   adminFilter.replaceChildren();
@@ -253,15 +448,17 @@ function renderMembers() {
     phone.textContent = member.phone;
     owner.textContent = member.assignedTo;
     if (member.phone) {
-      callButton.href = `tel:${member.phone}`;
+      callButton.href = "javascript:void(0)";
     } else {
       callButton.href = "#";
     }
     callButton.addEventListener("click", (e) => {
+      e.preventDefault();
       if (!member.phone) {
-        e.preventDefault();
         alert("No phone number found");
+        return;
       }
+      startTwilioCall(member);
     });
     callButton.setAttribute("aria-label", `Call ${member.name}`);
 
