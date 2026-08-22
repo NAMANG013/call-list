@@ -13,21 +13,22 @@ This is a premium, high-fidelity clone of [call-list.vercel.app](https://call-li
 
 ---
 
-## Logins and Passwords
+## Logins and Passcodes
 
-For quick reference and testing, use the following credentials:
-
-| Member Name | Password (4-Digit PIN) | Role |
+| Member Name | Role | Passcode |
 | :--- | :--- | :--- |
-| **Admin** | `2026` | Admin |
-| **Meet G Patel** | `4827` | Member |
-| **Tirth S Patel** | `9136` | Member |
-| **Meet N Patel** | `7054` | Member |
-| **Sharad T Patel** | `2468` | Member |
-| **Dipeshbhai Patel** | `6319` | Member |
-| **Palak N Patel** | `5872` | Member |
-| **Rushik D Patel** | `3941` | Member |
-| **Urvish R Patel** | `8295` | Member |
+| **Naman Gajjar** | Admin | `2026` |
+| **Sharad Timirbhai Patel** | Member | `2468` |
+| **Rushik Dineshbhai Patel** | Member | `3941` |
+| **Urvish patel** | Member | `8295` |
+| **Dipeshbhai Patel** | Member | `6319` |
+| **Palak Narendrbhai Patel** | Member | `5872` |
+| **Meet N Patel** | Member | `7054` |
+| **Keyur Patel** | Member | `1988` |
+| **Sneh Patel** | Member | `2005` |
+| **Vivek Prajapati** | Member | `2007` |
+| **Aaryan s Patel** | Member | `7391` |
+| **Sarthak Patel** | Member | `5264` |
 
 ---
 
