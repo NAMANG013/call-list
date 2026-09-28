@@ -1,7 +1,7 @@
 {
   "name": "call-list-clone",
   "version": "1.0.0",
-  "description": "Premium clone of call-list.vercel.app with a modernized UI dashboard and toast notifications.",
+  "description": "Premium clone of call-list.vercel.app with a modernized UI dashboard, session management, and toast notifications.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -9,9 +9,5 @@
   },
   "devDependencies": {
     "vite": "^5.2.0"
-  },
-  "dependencies": {
-    "@twilio/voice-sdk": "^2.18.3",
-    "twilio": "^6.1.0"
   }
 }

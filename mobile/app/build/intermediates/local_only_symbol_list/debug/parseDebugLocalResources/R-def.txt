@@ -1,0 +1,11 @@
+R_DEF: Internal format may change without notice
+local
+color background_dark
+color black
+color primary_accent
+color white
+id webView
+layout activity_main
+mipmap ic_launcher
+string app_name
+style Theme.FollowUp

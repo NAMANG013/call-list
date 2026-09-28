@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="background_dark">#0b0e14</color>
+    <color name="black">#FF000000</color>
+    <color name="primary_accent">#f59e0b</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="app_name">Follow Up</string>
+    <style name="Theme.FollowUp" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@color/background_dark</item>
+        <item name="android:navigationBarColor">@color/background_dark</item>
+        <item name="android:windowBackground">@color/background_dark</item>
+    </style>
+</resources>
